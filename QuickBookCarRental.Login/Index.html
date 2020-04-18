@@ -7,7 +7,20 @@
 </head>
 <body>
     <form>
-        <input type="file" id="file-input" value="Choose a file" />
+        <h1>Test fomr with upload</h1>
+        <fieldset>
+            <label for="Name1">Name1:</label>
+            <input type="text" id="Name1" />
+        </fieldset>
+        <fieldset>
+            <label for="Name2">Name2:</label>
+            <input type="text" id="Name2" />
+        </fieldset>
+        <fieldset>
+            <label for="file">File upload:</label>
+            <input type="file" id="file" value="Choose a file" />
+        </fieldset>
+        <br />
         <br />
         <input type="button" value="Upload" id="upload" />
     </form>
@@ -15,14 +28,19 @@
         $(document).ready(function () {
             $('#upload').click(function () {
                 var data = new FormData();
-                var file = $('#file-input')[0].files[0];
-                data.append('file', file);
+
+                var file = $('#file')[0].files[0];
+                data.append('Image', file);
+                data.append('Name1', $('#Name1').val());
+                data.append('Name2', $('#Name2').val());
+
                 $.ajax({
                     url: '/Api/Files',
                     processData: false,
                     contentType: false,
                     data: data,
-                    type: 'POST'
+                    type: 'POST',
+                    dataType: 'json'
                 }).done(function (result) {
                     alert(result);
                 }).fail(function (a, b, c) {
