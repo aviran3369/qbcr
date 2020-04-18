@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.5.0.min.js" integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script>
+</head>
+<body>
+    <form>
+        <input type="file" id="file-input" value="Choose a file" />
+        <br />
+        <input type="button" value="Upload" id="upload" />
+    </form>
+    <script>
+        $(document).ready(function () {
+            $('#upload').click(function () {
+                var data = new FormData();
+                var file = $('#file-input')[0].files[0];
+                data.append('file', file);
+                $.ajax({
+                    url: '/Api/Files',
+                    processData: false,
+                    contentType: false,
+                    data: data,
+                    type: 'POST'
+                }).done(function (result) {
+                    alert(result);
+                }).fail(function (a, b, c) {
+                    console.log(a, b, c);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
