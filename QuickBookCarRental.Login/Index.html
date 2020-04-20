@@ -33,14 +33,14 @@
                 data.append('Image', file);
                 data.append('Name1', $('#Name1').val());
                 data.append('Name2', $('#Name2').val());
+                data.append('Num', '1');
 
                 $.ajax({
-                    url: '/Api/Files',
-                    processData: false,
-                    contentType: false,
-                    data: data,
                     type: 'POST',
-                    dataType: 'json'
+                    url: '/Api/Files',
+                    data: data,
+                    contentType: false,
+                    processData: false
                 }).done(function (result) {
                     alert(result);
                 }).fail(function (a, b, c) {

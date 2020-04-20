@@ -1,4 +1,5 @@
 ﻿using QuickBookCarRental.Auth;
+using QuickBookCarRental.Login.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -13,9 +14,11 @@ namespace QuickBookCarRental.Login.Controllers
     public class ValuesController : ApiController
     {
         // GET api/values
-        [Authorize]
+        [AuthOnly]
         public IEnumerable<string> Get()
         {
+            var currentPrincipal = Request.GetOwinContext().Authentication.User;
+            
             return new string[] { "value1", "value2" };
         }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QuickBookCarRental.Login.Models;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,11 +11,11 @@ using System.Web.Http;
 
 namespace QuickBookCarRental.Login.Controllers
 {
-    public class TestModel
+    public class TestModel : BaseFileModel
     {
         public string Name1 { get; set; }
         public string Name2 { get; set; }
-        public int FileId { get; set; }
+        public int Num { get; set; }
     }
 
     [RoutePrefix("api/Files")]
@@ -31,16 +32,22 @@ namespace QuickBookCarRental.Login.Controllers
 
             ///NOTE:    Files location is ~/Files/[FILE_NAME]
             ///         Files gets a random name, and saved as binary data
-            string root = HttpContext.Current.Server.MapPath("~/Files");
-            var provider = new MultipartFormDataStreamProvider(root);
+           // string root = HttpContext.Current.Server.MapPath("~/Files");
+            var provider = new ExtendedMultipartFileStreamProvider<TestModel>();
+            await Request.Content.ReadAsMultipartAsync(provider);
+            var stream = await provider.Contents[0].ReadAsStreamAsync();
+
+            string root = HttpContext.Current.Server.MapPath("~/Files/");
+            string filename = $"{provider.Data.Files[0].FileName}_{DateTime.Now.Ticks}.{provider.Data.Files[0].FileExtension}";
+            FileStream fileStream = new FileStream(root + filename, FileMode.Create);
+            stream.CopyTo(fileStream);
+            
 
             try
             {
-                await Request.Content.ReadAsMultipartAsync(provider);
-
                 TestModel test = new TestModel();
-                test.Name1 = provider.FormData.GetValues("Name1")[0];
-                test.Name2 = provider.FormData.GetValues("Name2")[0];
+                //test.Name1 = provider.FormData.GetValues("Name1")[0];
+                //test.Name2 = provider.FormData.GetValues("Name2")[0];
 
                 /*
                     TODO:   read file in this location, the full path is here:

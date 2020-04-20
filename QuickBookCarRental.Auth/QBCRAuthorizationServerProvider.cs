@@ -10,6 +10,11 @@ namespace QuickBookCarRental.Auth
 {
     public class QBCRAuthorizationServerProvider : OAuthAuthorizationServerProvider
     {
+        public override Task ValidateAuthorizeRequest(OAuthValidateAuthorizeRequestContext context)
+        {
+            return base.ValidateAuthorizeRequest(context);
+        }
+
         public override async Task ValidateClientAuthentication(OAuthValidateClientAuthenticationContext context)
         {
             context.Validated();
