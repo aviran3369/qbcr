@@ -5,22 +5,58 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 
 namespace QuickBookCarRental.Login.Controllers
 {
-    public class TestModel : BaseFileModel
-    {
-        public string Name1 { get; set; }
-        public string Name2 { get; set; }
-        public int Num { get; set; }
-    }
 
     [RoutePrefix("api/Files")]
     public class FilesController : ApiController
     {
+        [HttpGet]
+        public HttpResponseMessage TryGetFile(string id) // id not in use, just for routing isseues
+        {
+            string virtualPath = Request.RequestUri.LocalPath.ToLower();
+
+            ///TODO:    search fileVirtualPath on DB to get the physical path of the file
+            ///         table should be like:
+            ///             Id int idnetity primary-key
+            ///             OriginalFileName nvarchar
+            ///             OriginalFileExtension varchar
+            ///             VirtualPath nvarchar (SHOULD ALWAYS LOWERCASE FOR EASY SEARCHING)
+            ///             PhysicalPath nvarchar
+            ///             CreatedAt datetime
+            ///             UpdatedAt datetime
+            ///             [SOME EXTRA DATA]
+
+
+            // Example of return file from api application folder
+
+            string root = HttpContext.Current.Server.MapPath("~/Files/");
+            string physicalPathFromDb = root + "Sketchpad_637230220276749578.png";
+
+            var filestream = File.OpenRead(physicalPathFromDb);
+            var stream = new MemoryStream();
+            filestream.CopyTo(stream);
+
+            var result = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new ByteArrayContent(stream.ToArray())
+            };
+            result.Content.Headers.ContentDisposition =
+                new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
+                {
+                    FileName = "Sketchpad.png" // [OriginalFileName].[OriginalFileExtension] from db
+                };
+            result.Content.Headers.ContentType =
+                new MediaTypeHeaderValue("application/octet-stream");
+
+            return result;
+        }
+
         [Route("")]
         [HttpPost]
         public async Task<HttpResponseMessage> Post()
@@ -30,60 +66,24 @@ namespace QuickBookCarRental.Login.Controllers
                 throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
             }
 
-            ///NOTE:    Files location is ~/Files/[FILE_NAME]
-            ///         Files gets a random name, and saved as binary data
-           // string root = HttpContext.Current.Server.MapPath("~/Files");
-            var provider = new ExtendedMultipartFileStreamProvider<TestModel>();
-            await Request.Content.ReadAsMultipartAsync(provider);
-            var stream = await provider.Contents[0].ReadAsStreamAsync();
-
-            string root = HttpContext.Current.Server.MapPath("~/Files/");
-            string filename = $"{provider.Data.Files[0].FileName}_{DateTime.Now.Ticks}.{provider.Data.Files[0].FileExtension}";
-            FileStream fileStream = new FileStream(root + filename, FileMode.Create);
-            stream.CopyTo(fileStream);
-            
-
             try
             {
-                TestModel test = new TestModel();
-                //test.Name1 = provider.FormData.GetValues("Name1")[0];
-                //test.Name2 = provider.FormData.GetValues("Name2")[0];
+                var provider = new ExtendedMultipartFileStreamProvider<TestModel>();
+                await Request.Content.ReadAsMultipartAsync(provider);
+                var stream = await provider.Contents[0].ReadAsStreamAsync();
 
-                /*
-                    TODO:   read file in this location, the full path is here:
-                            * provider.FileData[0].LocalFileName
-                            
-                            The original file name:
-                            * provider.FileData[0].Headers.ContentDisposition.FileName
-                            
-                            File mime type: (png, jpg, etc...)
-                            * provider.FileData[0].Headers.ContentType.MediaType
-                            
-                            **********************************************************
-                            
-                            You need to read this file and save it wherever you want and save details in db.
-                            (REMOVE THE FILE FROM ITS TEMP LOCATION IN provider.FileData[0].LocalFileName)
+                string root = HttpContext.Current.Server.MapPath("~/Files/");
+                string filename = $"{provider.Data.Files[0].FileName}_{DateTime.Now.Ticks}.{provider.Data.Files[0].FileExtension}";
+                FileStream fileStream = new FileStream(root + filename, FileMode.Create);
+                stream.CopyTo(fileStream);
 
-                            Example:
-                                Table name: MediaFiles
-                                Columns:
-                                * Id int primary-key (identity)
-                                * OriginalName nvarchar
-                                * FullPath varchar
-                                * MimeType varchar
-                                * CreatedDate dateTime
-                                * UploadedBy string (The user id)
-                                * VirtualPath nvarchar (for example: /api/car_documents/[CAR_ID]/license_01-01-2020.jpg)
-                                        * Make sure it always lowercase (!!!!)
-                                        * Whene client request file in this path, you can convert this path to lowercase and search file by VirtualPath
-                            
-                            Now you can create CarDocuments table like this:
-                                * ......
-                                * DocumentType int (from enum or DocumentTypes table)
-                                * FileId int (with forign-key to MediaFiles table)
-
-                 */
-
+                ///TODO: 1. save file on DB/Cloud/CDN
+                ///      2. save file details on DB 
+                ///         {
+                ///             "fileId": 1234, 
+                ///             "virtualPath": "/api/docs/[PATH]/[FILE NAME].[FILE EXTENSION]"
+                ///         }
+                ///      3. return 
 
                 return Request.CreateResponse(HttpStatusCode.OK);
             }

@@ -22,6 +22,12 @@ namespace QuickBookCarRental.Login
                 defaults: new { id = RouteParameter.Optional }
             );
 
+            config.Routes.MapHttpRoute(
+                name: "FilesVirtualPath",
+                routeTemplate: "api/files/{id}/{*url}",
+                defaults: new { controller = "Files", action = "TryGetFile" }
+            );
+
             var jsonFormatter = config.Formatters.OfType<JsonMediaTypeFormatter>().First();
             jsonFormatter.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
         }

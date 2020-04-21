@@ -11,13 +11,13 @@ namespace QuickBookCarRental.Login
 {
     public class ExtendedMultipartFileStreamProvider<T> : MultipartMemoryStreamProvider where T : BaseFileModel
     {
-        private List<UploadedFile> _files { get; set; }
+        private List<UploadedFileModel> _files { get; set; }
 
         public T Data { get; private set; }
 
         public ExtendedMultipartFileStreamProvider()
         {
-            _files = new List<UploadedFile>();
+            _files = new List<UploadedFileModel>();
         }
 
         public override Task ExecutePostProcessingAsync()
@@ -31,7 +31,7 @@ namespace QuickBookCarRental.Login
                     var filename = file.Headers.ContentDisposition.FileName.Replace("\"", string.Empty);
                     var extensionStartIndex = filename.LastIndexOf('.');
 
-                    _files.Add(new UploadedFile
+                    _files.Add(new UploadedFileModel
                     {
                         FileName = filename.Substring(0, extensionStartIndex),
                         FileExtension = filename.Substring(extensionStartIndex + 1)
