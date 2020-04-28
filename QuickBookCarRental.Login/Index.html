@@ -9,16 +9,20 @@
     <form>
         <h1>Test fomr with upload</h1>
         <fieldset>
-            <label for="Name1">Name1:</label>
-            <input type="text" id="Name1" />
+            <label for="DocumentTypeId">Documnt Type:</label>
+            <select id="DocumentTypeId">
+                <option value="1">ביטוח</option>
+                <option value="2">רישיון רכב</option>
+                <option value="99">אחר</option>
+            </select>
         </fieldset>
         <fieldset>
-            <label for="Name2">Name2:</label>
-            <input type="text" id="Name2" />
+            <label for="MoreDetails">Additional details:</label>
+            <textarea id="MoreDetails"></textarea>
         </fieldset>
         <fieldset>
-            <label for="file">File upload:</label>
-            <input type="file" id="file" value="Choose a file" />
+            <label for="file">Choose file:</label>
+            <input type="file" id="file" />
         </fieldset>
         <br />
         <br />
@@ -31,9 +35,8 @@
 
                 var file = $('#file')[0].files[0];
                 data.append('Image', file);
-                data.append('Name1', $('#Name1').val());
-                data.append('Name2', $('#Name2').val());
-                data.append('Num', '1');
+                data.append('DocumentTypeId', $('#DocumentTypeId').val());
+                data.append('MoreDetails', $('#MoreDetails').val());
 
                 $.ajax({
                     type: 'POST',
@@ -42,7 +45,7 @@
                     contentType: false,
                     processData: false
                 }).done(function (result) {
-                    alert(result);
+                    alert(JSON.stringify(result));
                 }).fail(function (a, b, c) {
                     console.log(a, b, c);
                 });

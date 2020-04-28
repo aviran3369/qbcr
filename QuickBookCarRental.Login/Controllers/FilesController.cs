@@ -68,7 +68,7 @@ namespace QuickBookCarRental.Login.Controllers
 
             try
             {
-                var provider = new ExtendedMultipartFileStreamProvider<TestModel>();
+                var provider = new ExtendedMultipartFileStreamProvider<CarDocumentModel>();
                 await Request.Content.ReadAsMultipartAsync(provider);
                 var stream = await provider.Contents[0].ReadAsStreamAsync();
 
@@ -85,7 +85,7 @@ namespace QuickBookCarRental.Login.Controllers
                 ///         }
                 ///      3. return 
 
-                return Request.CreateResponse(HttpStatusCode.OK);
+                return Request.CreateResponse(provider.Data);
             }
             catch (System.Exception e)
             {
